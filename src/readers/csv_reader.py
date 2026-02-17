@@ -2,7 +2,7 @@ import pandas as pd
 
 #read the csv file
 
-class csvReader:
+class CsvReader:
 
     def read_csvfile(self, file_path:str) -> pd.DataFrame:
         data = None
