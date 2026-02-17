@@ -1,12 +1,13 @@
 import os
 from info.info import InfoPrinter
 from readers.formatter import read
-from geometry.point_builder import PointBuilder
+from geometry.point_builder import PointBuilder 
 
 # Bronze layer: raw data ingestion and print information about the data.
 BRONZE_DIR = "/workspaces/Geospatial_Automate/data/bronze"
 INFO_PRINTER = InfoPrinter()
 spark = read()
+point = PointBuilder()
 
 def run():
     for file in os.listdir(BRONZE_DIR):
@@ -16,9 +17,8 @@ def run():
             print(f"CSV file metadata: {file}")
             INFO_PRINTER.print_info(data)
             #convert csv to geodataframe
-            point_builder = PointBuilder()
-            gdf_csv = point_builder.build_geodataframe(data)
-            print(f"Geodataframe metadata from csv to gdf: {file}")
+            gdf_csv = point.build(data)
+            print(f"Geodataframe metadata from csv to gdf: {gdf_csv}")
             INFO_PRINTER.print_info(gdf_csv)
 
         elif file.endswith('.shp'):
