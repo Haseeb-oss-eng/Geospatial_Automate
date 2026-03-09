@@ -2,12 +2,14 @@ import os
 from info.info import InfoPrinter
 from readers.formatter import ReaderFactory
 from geometry.point_builder import PointBuilder
-from geometry.geometry_sanity import GeometrySanity 
+from geometry.geometry_sanity import GeometrySanity
+from validators.coordinate_validator import CoordinateValidator
 
 # Bronze layer: raw data ingestion and print information about the data.
 BRONZE_DIR = "/workspaces/Geospatial_Automate/data/bronze"
 INFO_PRINTER = InfoPrinter()
 GEOMETRY_SANITY = GeometrySanity()
+COORDINATE_VALIDATOR = CoordinateValidator()
 
 
 def run():
@@ -18,20 +20,28 @@ def run():
         file_path = os.path.join(BRONZE_DIR, file)
 
         if file.endswith(".csv"):
-            df = reader.read("csv", file_path)
-            INFO_PRINTER.print_info(df)
+            df_csv = reader.read("csv", file_path)
+            INFO_PRINTER.print_info(df_csv)
 
-            gdf = point_builder.build(df)
-            INFO_PRINTER.print_info(gdf)
+            #validate the geometry
+            #gdf_valid_csv = COORDINATE_VALIDATOR.check_all_aspect(df_csv)
+
+            #if gdf_valid_csv :
+            gdf_csv = point_builder.build(df_csv)
+            INFO_PRINTER.print_info(gdf_csv)
 
             # Check geometry sanity in csv files
             print("Checking geometry sanity for CSV file...")
-            GEOMETRY_SANITY.check(gdf)
+            GEOMETRY_SANITY.check(gdf_csv)
 
         elif file.endswith(".shp"):
-            gdf = reader.read("shp", file_path)
-            INFO_PRINTER.print_info(gdf)
+            gdf_shp = reader.read("shp", file_path)
+            INFO_PRINTER.print_info(gdf_shp)
 
-            # Check geometry sanity in shapefiles
-            print("Checking geometry sanity for Shapefile...")
-            GEOMETRY_SANITY.check(gdf)
+            #validate the geometry
+            gdf_valid_shp = COORDINATE_VALIDATOR.check_all_aspect(gdf_shp)
+
+            if gdf_valid_shp:
+                # Check geometry sanity in shapefiles
+                print("Checking geometry sanity for Shapefile...")
+                GEOMETRY_SANITY.check(gdf_shp)
