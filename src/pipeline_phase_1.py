@@ -1,6 +1,7 @@
 import os
 from info.info import InfoPrinter
 from readers.formatter import ReaderFactory
+from writer.geoparquet import GeoParquet
 from geometry.point_builder import PointBuilder
 from geometry.geometry_sanity import GeometrySanity
 from validators.coordinate_validator import CoordinateValidator
@@ -9,11 +10,13 @@ from visualize import visualize
 
 # Bronze layer: raw data ingestion and print information about the data.
 BRONZE_DIR = "/workspaces/Geospatial_Automate/data/bronze"
+SILVER_DIR = "/workspaces/Geospatial_Automate/data/silver"
 INFO_PRINTER = InfoPrinter()
 GEOMETRY_SANITY = GeometrySanity()
 COORDINATE_VALIDATOR = CoordinateValidator()
 COORDINATE_VALIDATOR_CSV = CoodinatorValidatorCSV()
 MAP = visualize()
+GEOPARQUET = GeoParquet()
 
 
 def run():
@@ -24,6 +27,7 @@ def run():
         file_path = os.path.join(BRONZE_DIR, file)
 
         if file.endswith(".csv"):
+            filename  = file.split('.')[0]
             df_csv = reader.read("csv", file_path)
             INFO_PRINTER.print_info(df_csv)
 
@@ -38,7 +42,11 @@ def run():
             print("Checking geometry sanity for CSV file...")
             GEOMETRY_SANITY.check(gdf_csv)
 
+            # writing the data into silver path
+            GEOPARQUET.write(gdf_csv,os.path.join(SILVER_DIR,filename+'.parquet'))
+
         elif file.endswith(".shp"):
+            filename  = file.split('.')[0]
             gdf_shp = reader.read("shp", file_path)
             INFO_PRINTER.print_info(gdf_shp)
 
@@ -50,8 +58,4 @@ def run():
                 print("Checking geometry sanity for Shapefile...")
                 GEOMETRY_SANITY.check(gdf_shp)
             
-    return gdf_csv, gdf_shp
-
-def map():
-    csvmap, gdfmap = run()
-    MAP.map_it(gdfmap)
+            GEOPARQUET.write(gdf_shp,os.path.join(SILVER_DIR,filename+'.parquet'))

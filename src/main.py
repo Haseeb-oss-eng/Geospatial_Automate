@@ -1,8 +1,8 @@
-from pipeline_phase_1 import map
+from pipeline_phase_1 import run
 
 
 def main():
-    map()
+    run()
 
 if __name__ == "__main__":
     main()

@@ -1,5 +1,4 @@
 import geopandas as gpd
-from shapely import Point
 
 class CoodinatorValidatorCSV:
 
